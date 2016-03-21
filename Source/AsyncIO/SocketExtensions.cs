@@ -35,7 +35,7 @@ namespace AsyncIO
                 throw new ArgumentOutOfRangeException("port");
             }
 
-            var ipAddress = Dns.GetHostAddresses(host).FirstOrDefault(ip=>                 
+            var ipAddress = Dns.GetHostAddressesAsync(host).Result.FirstOrDefault(ip=>                 
                 ip.AddressFamily == socket.AddressFamily || 
                 (socket.AddressFamily == AddressFamily.InterNetworkV6 && socket.DualMode && ip.AddressFamily == AddressFamily.InterNetwork));
 

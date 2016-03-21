@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Net.Sockets;
-using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 
 namespace AsyncIO.Windows
@@ -139,7 +138,7 @@ namespace AsyncIO.Windows
         [DllImport("Ws2_32.dll", SetLastError = true)]
         public static extern int listen(IntPtr s, int backlog);
 
-        [DllImport("ws2_32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        [DllImport("ws2_32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         public extern static IntPtr WSASocket(
           [In] AddressFamily addressFamily, [In] SocketType socketType, [In] ProtocolType protocolType,
           [In] IntPtr pinnedBuffer,
@@ -155,8 +154,9 @@ namespace AsyncIO.Windows
         [DllImport("ws2_32.dll", SetLastError = true)]
         public static extern SocketError setsockopt([In] IntPtr socketHandle, [In] SocketOptionLevel optionLevel,
               [In] SocketOptionName optionName, [In] ref int optionValue, [In] int optionLength);
-
+#if !DNXCORE50
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.MayFail)]
+#endif
         [DllImport("ws2_32.dll", SetLastError = true)]
         public static extern SocketError setsockopt([In] IntPtr socketHandle, [In] SocketOptionLevel optionLevel, [In] SocketOptionName optionName, [In] ref Linger linger, [In] int optionLength);
 

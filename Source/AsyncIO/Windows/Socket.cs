@@ -71,11 +71,7 @@ namespace AsyncIO.Windows
                 m_inOverlapped.Dispose();
                 m_outOverlapped.Dispose();
 
-                // for Windows XP
-                if (Environment.OSVersion.Version.Major == 5)
-                    UnsafeMethods.CancelIo(Handle);
-                else
-                    UnsafeMethods.CancelIoEx(Handle, IntPtr.Zero);
+                UnsafeMethods.CancelIoEx(Handle, IntPtr.Zero);
 
                 int error = UnsafeMethods.closesocket(Handle);
 
@@ -280,6 +276,7 @@ namespace AsyncIO.Windows
 
         private void SetMulticastOption(SocketOptionName optionName, MulticastOption mr)
         {
+#if !DNXCORE50
             IPMulticastRequest mreq = new IPMulticastRequest();
             mreq.MulticastAddress = (int)mr.Group.Address;
             if (mr.LocalAddress != null)
@@ -297,6 +294,7 @@ namespace AsyncIO.Windows
             {
                 throw new SocketException();
             }
+#endif
         }
 
         private void SetLingerOption(LingerOption lref)

@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.Odbc;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 
 namespace AsyncIO.DotNet
 {

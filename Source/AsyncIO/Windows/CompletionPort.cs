@@ -85,58 +85,41 @@ namespace AsyncIO.Windows
 
         public override bool GetMultipleQueuedCompletionStatus(int timeout, CompletionStatus[] completionStatuses, out int removed)
         {
-            // Windows XP Has NO GetQueuedCompletionStatusEx
-            // so we need dequeue IOPC one by one
-            if (Environment.OSVersion.Version.Major == 5)
+            if (m_overlappedEntries == null || m_overlappedEntries.Length < completionStatuses.Length)
             {
-                removed = 0;
-                CompletionStatus completeStatus;
-                bool result = GetQueuedCompletionStatus(timeout, out completeStatus);
-                if (result)
+                if (m_overlappedEntries != null)
                 {
-                    completionStatuses[0] = completeStatus;
-                    removed = 1;
+                    m_overlappedEntriesHandle.Free();
                 }
-                return result;
+
+                m_overlappedEntries = new OverlappedEntry[completionStatuses.Length];
+
+                m_overlappedEntriesHandle = GCHandle.Alloc(m_overlappedEntries, GCHandleType.Pinned);
+                m_overlappedEntriesAddress = Marshal.UnsafeAddrOfPinnedArrayElement(m_overlappedEntries, 0);
             }
-            else
+
+            bool result = UnsafeMethods.GetQueuedCompletionStatusEx(m_completionPortHandle,
+                                                                    m_overlappedEntriesAddress,
+                                                                    completionStatuses.Length, out removed, timeout,
+                                                                    false);
+
+            if (!result)
             {
-                if (m_overlappedEntries == null || m_overlappedEntries.Length < completionStatuses.Length)
+                int error = Marshal.GetLastWin32Error();
+
+                if (error == WaitTimeoutError)
                 {
-                    if (m_overlappedEntries != null)
-                    {
-                        m_overlappedEntriesHandle.Free();
-                    }
-
-                    m_overlappedEntries = new OverlappedEntry[completionStatuses.Length];
-
-                    m_overlappedEntriesHandle = GCHandle.Alloc(m_overlappedEntries, GCHandleType.Pinned);
-                    m_overlappedEntriesAddress = Marshal.UnsafeAddrOfPinnedArrayElement(m_overlappedEntries, 0);
+                    removed = 0;
+                    return false;
                 }
 
-                bool result = UnsafeMethods.GetQueuedCompletionStatusEx(m_completionPortHandle,
-                                                                        m_overlappedEntriesAddress,
-                                                                        completionStatuses.Length, out removed, timeout,
-                                                                        false);
+                throw new Win32Exception(error);
+            }
 
-                if (!result)
-                {
-                    int error = Marshal.GetLastWin32Error();
-
-                    if (error == WaitTimeoutError)
-                    {
-                        removed = 0;
-                        return false;
-                    }
-
-                    throw new Win32Exception(error);
-                }
-
-                for (int i = 0; i < removed; i++)
-                {
-                    HandleCompletionStatus(out completionStatuses[i], m_overlappedEntries[i].Overlapped,
-                                           m_overlappedEntries[i].CompletionKey, m_overlappedEntries[i].BytesTransferred);
-                }
+            for (int i = 0; i < removed; i++)
+            {
+                HandleCompletionStatus(out completionStatuses[i], m_overlappedEntries[i].Overlapped,
+                                       m_overlappedEntries[i].CompletionKey, m_overlappedEntries[i].BytesTransferred);
             }
             return true;
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Security;
 using System.Text;
 
@@ -10,7 +11,7 @@ namespace AsyncIO
     {
         public static CompletionPort Create()
         {
-            if (Environment.OSVersion.Platform != PlatformID.Win32NT || ForceDotNet.Forced)
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || ForceDotNet.Forced)
             {
                 return new AsyncIO.DotNet.CompletionPort();
             }

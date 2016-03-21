@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
+using System.Runtime.InteropServices;
 using AsyncIO.DotNet;
 
 namespace AsyncIO
@@ -26,7 +24,7 @@ namespace AsyncIO
 
         public static AsyncSocket Create(AddressFamily addressFamily, SocketType socketType, ProtocolType protocolType)
         {
-            if (Environment.OSVersion.Platform != PlatformID.Win32NT || ForceDotNet.Forced)
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || ForceDotNet.Forced)
             {
                 return new NativeSocket(addressFamily, socketType, protocolType);
             }
