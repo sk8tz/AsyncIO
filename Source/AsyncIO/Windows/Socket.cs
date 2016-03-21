@@ -172,13 +172,13 @@ namespace AsyncIO.Windows
         private void InitDynamicMethods()
         {
             m_connectEx =
-              (ConnectExDelegate)LoadDynamicMethod(UnsafeMethods.WSAID_CONNECTEX, typeof(ConnectExDelegate));
+              LoadDynamicMethod<ConnectExDelegate>(UnsafeMethods.WSAID_CONNECTEX, typeof(ConnectExDelegate));
 
             m_acceptEx =
-              (AcceptExDelegate)LoadDynamicMethod(UnsafeMethods.WSAID_ACCEPT_EX, typeof(AcceptExDelegate));
+              LoadDynamicMethod<AcceptExDelegate>(UnsafeMethods.WSAID_ACCEPT_EX, typeof(AcceptExDelegate));
         }
 
-        private Delegate LoadDynamicMethod(Guid guid, Type type)
+        private T LoadDynamicMethod<T>(Guid guid, Type type)
         {
             IntPtr connectExAddress = IntPtr.Zero;
             int byteTransfered = 0;
@@ -191,7 +191,7 @@ namespace AsyncIO.Windows
                 throw new SocketException();
             }
 
-            return Marshal.GetDelegateForFunctionPointer(connectExAddress, type);
+            return Marshal.GetDelegateForFunctionPointer<T>(connectExAddress);
         }
 
         internal void SetCompletionPort(CompletionPort completionPort, object state)
