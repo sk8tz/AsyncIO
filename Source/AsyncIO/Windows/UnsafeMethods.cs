@@ -39,7 +39,7 @@ namespace AsyncIO.Windows
 
     internal struct IPv6MulticastRequest
     {
-        internal static readonly int Size = Marshal.SizeOf(typeof(IPv6MulticastRequest));
+        internal static readonly int Size = Marshal.SizeOf<IPv6MulticastRequest>();
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
         internal byte[] MulticastAddress;
         internal int InterfaceIndex;
@@ -51,7 +51,7 @@ namespace AsyncIO.Windows
 
     internal struct IPMulticastRequest
     {
-        internal static readonly int Size = Marshal.SizeOf(typeof(IPMulticastRequest));
+        internal static readonly int Size = Marshal.SizeOf<IPMulticastRequest>();
         internal int MulticastAddress;
         internal int InterfaceAddress;
 
