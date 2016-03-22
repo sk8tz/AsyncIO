@@ -11,7 +11,7 @@ namespace AsyncIO
     {
         public static CompletionPort Create()
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || ForceDotNet.Forced)
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || ForceDotNet.Forced)
             {
                 return new AsyncIO.DotNet.CompletionPort();
             }
