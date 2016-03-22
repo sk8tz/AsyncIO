@@ -24,14 +24,7 @@ namespace AsyncIO
 
         public static AsyncSocket Create(AddressFamily addressFamily, SocketType socketType, ProtocolType protocolType)
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || ForceDotNet.Forced)
-            {
-                return new NativeSocket(addressFamily, socketType, protocolType);
-            }
-            else
-            {
-                return new Windows.Socket(addressFamily, socketType, protocolType);                    
-            }            
+            return new Windows.Socket(addressFamily, socketType, protocolType);
         }
 
         public static AsyncSocket CreateIPv4Tcp()
